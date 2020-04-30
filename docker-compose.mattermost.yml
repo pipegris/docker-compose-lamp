@@ -1,0 +1,55 @@
+version: '3'
+services:
+  mmdb:
+    container_name: mmdb
+    build: bin/mattermost/db
+    read_only: true
+    volumes:
+      - mmdata:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      POSTGRES_USER: ${MM_USER}
+      POSTGRES_PASSWORD: ${MM_PASSWORD}
+      POSTGRES_DB: ${MM_DB}
+    restart: unless-stopped
+  mmapp:
+    container_name: mmapp
+    build:
+      context: bin/mattermost/app
+      args:
+        - edition=team
+    volumes:
+      - ./data/mmapp/config:/mattermost/config:rw
+      - ./data/mmapp/data:/mattermost/data:rw
+      - ./data/mmapp/logs:/mattermost/logs:rw
+      - ./data/mmapp/plugins:/mattermost/plugins:rw
+      - ./data/mmapp/client-plugins:/mattermost/client/plugins:rw
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      MM_USERNAME: ${MM_USER}
+      MM_PASSWORD: ${MM_PASSWORD}
+      MM_DBNAME: ${MM_DB}
+      MM_SQLSETTINGS_DATASOURCE: postgres://${MM_USER}:${MM_PASSWORD}@mmdb:5432/${MM_DB}?sslmode=disable&connect_timeout=10
+      DB_HOST: mmdb
+    restart: unless-stopped
+    depends_on:
+      - mmdb
+  mmweb:
+    container_name: mmweb
+    build: bin/mattermost/web
+    ports:
+      - 8001:80
+      - 443:443
+    read_only: true
+    restart: unless-stopped
+    volumes:
+      # This directory must have cert files if you want to enable SSL
+      #- ./data/mmweb/cert:/cert:ro
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - mmapp
+    environment:
+      APP_HOST: mmapp
+volumes:
+  mmdata:
+    driver: local

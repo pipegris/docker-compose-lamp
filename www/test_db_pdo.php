@@ -3,9 +3,10 @@
 $DBuser = 'root';
 $DBpass = 'tiger';
 $pdo = null;
+$host = 'mysqldb';
 
 try{
-    $database = 'mysql:host=database:3306';
+    $database = 'mysql:host='.$host.':3306';
     $pdo = new PDO($database, $DBuser, $DBpass);
     echo "Looking good, php connect to mysql successfully.";    
 } catch(PDOException $e) {

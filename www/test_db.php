@@ -1,5 +1,7 @@
 <?php
-$link = mysqli_connect("database", "root", "tiger", null);
+$host = getenv('DB_HOST');
+var_dump($host);
+$link = mysqli_connect($host, "root", "tiger", null);
 
 if (!$link) {
     echo "Error: Unable to connect to MySQL." . PHP_EOL;
