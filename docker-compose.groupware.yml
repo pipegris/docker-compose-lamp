@@ -2,8 +2,6 @@ version: '3'
 services:
   wpapp:
     container_name: wpapp
-    depends_on:
-      - mysqldb
     image: wordpress:latest
     ports:
       - 8000:80
@@ -13,3 +11,5 @@ services:
       WORDPRESS_DB_USER: docker
       WORDPRESS_DB_PASSWORD: docker
       WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - mysqldb
